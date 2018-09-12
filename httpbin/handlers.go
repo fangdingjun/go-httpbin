@@ -56,7 +56,7 @@ func (h *HTTPBin) Get(w http.ResponseWriter, r *http.Request) {
 		Origin:  getOrigin(r),
 		URL:     getURL(r).String(),
 	}
-	body, _ := json.Marshal(resp)
+	body, _ := json.MarshalIndent(resp, "", "    ")
 	writeJSON(w, body, http.StatusOK)
 }
 
@@ -75,7 +75,7 @@ func (h *HTTPBin) RequestWithBody(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, _ := json.Marshal(resp)
+	body, _ := json.MarshalIndent(resp, "", "    ")
 	writeJSON(w, body, http.StatusOK)
 }
 
@@ -86,7 +86,7 @@ func (h *HTTPBin) Gzip(w http.ResponseWriter, r *http.Request) {
 		Origin:  getOrigin(r),
 		Gzipped: true,
 	}
-	body, _ := json.Marshal(resp)
+	body, _ := json.MarshalIndent(resp, "", "    ")
 
 	buf := &bytes.Buffer{}
 	gzw := gzip.NewWriter(buf)
@@ -106,7 +106,7 @@ func (h *HTTPBin) Deflate(w http.ResponseWriter, r *http.Request) {
 		Origin:   getOrigin(r),
 		Deflated: true,
 	}
-	body, _ := json.Marshal(resp)
+	body, _ := json.MarshalIndent(resp, "", "    ")
 
 	buf := &bytes.Buffer{}
 	w2 := zlib.NewWriter(buf)
@@ -121,25 +121,25 @@ func (h *HTTPBin) Deflate(w http.ResponseWriter, r *http.Request) {
 
 // IP echoes the IP address of the incoming request
 func (h *HTTPBin) IP(w http.ResponseWriter, r *http.Request) {
-	body, _ := json.Marshal(&ipResponse{
+	body, _ := json.MarshalIndent(&ipResponse{
 		Origin: getOrigin(r),
-	})
+	}, "", "    ")
 	writeJSON(w, body, http.StatusOK)
 }
 
 // UserAgent echoes the incoming User-Agent header
 func (h *HTTPBin) UserAgent(w http.ResponseWriter, r *http.Request) {
-	body, _ := json.Marshal(&userAgentResponse{
+	body, _ := json.MarshalIndent(&userAgentResponse{
 		UserAgent: r.Header.Get("User-Agent"),
-	})
+	}, "", "    ")
 	writeJSON(w, body, http.StatusOK)
 }
 
 // Headers echoes the incoming request headers
 func (h *HTTPBin) Headers(w http.ResponseWriter, r *http.Request) {
-	body, _ := json.Marshal(&headersResponse{
+	body, _ := json.MarshalIndent(&headersResponse{
 		Headers: getRequestHeaders(r),
-	})
+	}, "", "    ")
 	writeJSON(w, body, http.StatusOK)
 }
 
@@ -167,10 +167,10 @@ func (h *HTTPBin) Status(w http.ResponseWriter, r *http.Request) {
 			"Location": "/redirect/1",
 		},
 	}
-	notAcceptableBody, _ := json.Marshal(map[string]interface{}{
+	notAcceptableBody, _ := json.MarshalIndent(map[string]interface{}{
 		"message": "Client did not request a supported media type",
 		"accept":  acceptedMediaTypes,
-	})
+	}, "", "    ")
 
 	specialCases := map[int]*statusCase{
 		301: redirectHeaders,
@@ -231,7 +231,7 @@ func (h *HTTPBin) ResponseHeaders(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add(http.CanonicalHeaderKey(k), v)
 		}
 	}
-	body, _ := json.Marshal(args)
+	body, _ := json.MarshalIndent(args, "", "    ")
 	if contentType := w.Header().Get("Content-Type"); contentType == "" {
 		w.Header().Set("Content-Type", jsonContentType)
 	}
@@ -329,7 +329,7 @@ func (h *HTTPBin) Cookies(w http.ResponseWriter, r *http.Request) {
 	for _, c := range r.Cookies() {
 		resp[c.Name] = c.Value
 	}
-	body, _ := json.Marshal(resp)
+	body, _ := json.MarshalIndent(resp, "", "    ")
 	writeJSON(w, body, http.StatusOK)
 }
 
@@ -384,10 +384,10 @@ func (h *HTTPBin) BasicAuth(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("WWW-Authenticate", `Basic realm="Fake Realm"`)
 	}
 
-	body, _ := json.Marshal(&authResponse{
+	body, _ := json.MarshalIndent(&authResponse{
 		Authorized: authorized,
 		User:       givenUser,
-	})
+	}, "", "    ")
 	writeJSON(w, body, status)
 }
 
@@ -410,10 +410,10 @@ func (h *HTTPBin) HiddenBasicAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, _ := json.Marshal(&authResponse{
+	body, _ := json.MarshalIndent(&authResponse{
 		Authorized: authorized,
 		User:       givenUser,
-	})
+	}, "", "    ")
 	writeJSON(w, body, http.StatusOK)
 }
 
@@ -446,7 +446,7 @@ func (h *HTTPBin) Stream(w http.ResponseWriter, r *http.Request) {
 	f := w.(http.Flusher)
 	for i := 0; i < n; i++ {
 		resp.ID = i
-		line, _ := json.Marshal(resp)
+		line, _ := json.MarshalIndent(resp, "", "    ")
 		w.Write(line)
 		w.Write([]byte("\n"))
 		f.Flush()
@@ -655,7 +655,7 @@ func (h *HTTPBin) ETag(w http.ResponseWriter, r *http.Request) {
 		Origin:  getOrigin(r),
 		URL:     getURL(r).String(),
 	}
-	body, _ := json.Marshal(resp)
+	body, _ := json.MarshalIndent(resp, "", "    ")
 
 	// Let http.ServeContent deal with If-None-Match and If-Match headers:
 	// https://golang.org/pkg/net/http/#ServeContent
@@ -889,9 +889,9 @@ func (h *HTTPBin) DigestAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, _ := json.Marshal(&authResponse{
+	resp, _ := json.MarshalIndent(&authResponse{
 		Authorized: true,
 		User:       user,
-	})
+	}, "", "    ")
 	writeJSON(w, resp, http.StatusOK)
 }
