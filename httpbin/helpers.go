@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -21,10 +22,15 @@ import (
 //
 // This is necessary to ensure that the incoming Host header is included,
 // because golang only exposes that header on the http.Request struct itself.
-func getRequestHeaders(r *http.Request) http.Header {
+func getRequestHeaders(r *http.Request) map[string]string {
+	m := make(map[string]string)
 	h := r.Header
 	h.Set("Host", r.Host)
-	return h
+	for k, v := range r.Header {
+		v1 := strings.Join(v, ",")
+		m[strings.Title(k)] = v1
+	}
+	return m
 }
 
 // Copies all headers from src to dst
@@ -41,6 +47,9 @@ func getOrigin(r *http.Request) string {
 	origin := r.Header.Get("X-Forwarded-For")
 	if origin == "" {
 		origin = r.RemoteAddr
+	}
+	if strings.Contains(origin, ":") {
+		origin, _, _ = net.SplitHostPort(origin)
 	}
 	return origin
 }

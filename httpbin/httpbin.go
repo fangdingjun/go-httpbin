@@ -16,7 +16,7 @@ const jsonContentType = "application/json; encoding=utf-8"
 const htmlContentType = "text/html; charset=utf-8"
 
 type headersResponse struct {
-	Headers http.Header `json:"headers"`
+	Headers map[string]string `json:"headers"`
 }
 
 type ipResponse struct {
@@ -28,18 +28,18 @@ type userAgentResponse struct {
 }
 
 type getResponse struct {
-	Args    url.Values  `json:"args"`
-	Headers http.Header `json:"headers"`
-	Origin  string      `json:"origin"`
-	URL     string      `json:"url"`
+	Args    url.Values        `json:"args"`
+	Headers map[string]string `json:"headers"`
+	Origin  string            `json:"origin"`
+	URL     string            `json:"url"`
 }
 
 // A generic response for any incoming request that might contain a body
 type bodyResponse struct {
-	Args    url.Values  `json:"args"`
-	Headers http.Header `json:"headers"`
-	Origin  string      `json:"origin"`
-	URL     string      `json:"url"`
+	Args    url.Values        `json:"args"`
+	Headers map[string]string `json:"headers"`
+	Origin  string            `json:"origin"`
+	URL     string            `json:"url"`
 
 	Data  string              `json:"data"`
 	Files map[string][]string `json:"files"`
@@ -55,25 +55,25 @@ type authResponse struct {
 }
 
 type gzipResponse struct {
-	Headers http.Header `json:"headers"`
-	Origin  string      `json:"origin"`
-	Gzipped bool        `json:"gzipped"`
+	Headers map[string]string `json:"headers"`
+	Origin  string            `json:"origin"`
+	Gzipped bool              `json:"gzipped"`
 }
 
 type deflateResponse struct {
-	Headers  http.Header `json:"headers"`
-	Origin   string      `json:"origin"`
-	Deflated bool        `json:"deflated"`
+	Headers  map[string]string `json:"headers"`
+	Origin   string            `json:"origin"`
+	Deflated bool              `json:"deflated"`
 }
 
 // An actual stream response body will be made up of one or more of these
 // structs, encoded as JSON and separated by newlines
 type streamResponse struct {
-	ID      int         `json:"id"`
-	Args    url.Values  `json:"args"`
-	Headers http.Header `json:"headers"`
-	Origin  string      `json:"origin"`
-	URL     string      `json:"url"`
+	ID      int               `json:"id"`
+	Args    url.Values        `json:"args"`
+	Headers map[string]string `json:"headers"`
+	Origin  string            `json:"origin"`
+	URL     string            `json:"url"`
 }
 
 // Options are used to configure HTTPBin

@@ -145,8 +145,12 @@ func TestGet(t *testing.T) {
 			{"User-Agent", "test"},
 		}
 		for _, test := range headerTests {
-			if resp.Headers.Get(test.key) != test.expected {
-				t.Fatalf("expected %s = %#v, got %#v", test.key, test.expected, resp.Headers.Get(test.key))
+			v, ok := resp.Headers[test.key]
+			if !ok {
+				v = ""
+			}
+			if v != test.expected {
+				t.Fatalf("expected %s = %#v, got %#v", test.key, test.expected, v)
 			}
 		}
 	})
@@ -332,8 +336,11 @@ func TestHeaders(t *testing.T) {
 
 	// Host header requires special treatment, because its an attribute of the
 	// http.Request struct itself, not part of its headers map
-	host := resp.Headers[http.CanonicalHeaderKey("Host")]
-	if host == nil || host[0] != "test-host" {
+	host, ok := resp.Headers[http.CanonicalHeaderKey("Host")]
+	if !ok {
+		host = ""
+	}
+	if host != "test-host" {
 		t.Fatalf("expected Host header \"test-host\", got %#v", host)
 	}
 
@@ -342,7 +349,7 @@ func TestHeaders(t *testing.T) {
 		if !ok {
 			t.Fatalf("expected header %#v in response", k)
 		}
-		if !reflect.DeepEqual(expectedValues, values) {
+		if !reflect.DeepEqual(strings.Join(expectedValues, ","), values) {
 			t.Fatalf("header %s value mismatch: %#v != %#v", k, values, expectedValues)
 		}
 	}
